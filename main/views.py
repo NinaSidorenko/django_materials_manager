@@ -40,11 +40,11 @@ def task_create(request):
             if form.is_valid(): 
                 task = form.save(commit=False)
                 task.executor = request.user
-                form.save() 
+                task.save() 
                 return redirect('tasks_list') 
         else: 
             form = TaskForm() 
-            return render(request, "task_form.html", {"form": form}) 
+        return render(request, "task_form.html", {"form": form}) 
 
 @login_required
 def task_update(request, pk): 
