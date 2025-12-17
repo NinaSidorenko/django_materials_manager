@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Список книг</title>
+</head>
+<body>
+    <h1>Мои задачи</h1>
+    <ul>
+        {% for book in books %}
+        <li>
+            {% if book.is_done %}✔ Прочитано{% else %}⏳ В процессе
+            {%endif %}
+            <strong>{{ book.title }}</strong> 
+        </li>
+        {% empty %}
+        <li>Пока нет книг</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+<nav>
+    <a href="{% url 'books_articles_list' %}">Книги и статьи</a>
+    {% if user.is_authenticated %}
+        <span>{{ user.username }}</span>
+        <a href="/accounts/logout/">Выход</a>
+    {% else %}
+        <a href="/accounts/login/">Вход</a>
+    {% endif %}
+</nav>
+
+
+<a href="{% url 'book_create' %}">Добавить книгу</a> 
+<ul> 
+    {% for book in books_articles_list %} 
+    <li> 
+        {{ book.title }} 
+        — <a href="{% url 'bool_update' book.pk %}">Редактировать</a> 
+        — <a href="{% url 'book_delete' book.pk %}">Удалить</a> 
+    </li> 
+    {% endfor %} 
+</ul> 
+
+
+<form method="GET">
+    <select name="genre">
+        <option value="">Все жанры</option>
+        {% for g in genres %}
+        <option value="{{ g.id }}">{{ g.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="status">
+        <option value="">Любой статус</option>
+        <option value="done">Прочитана</option>
+        <option value="not_done">В процессе</option>
+    </select>
+
+    <button type="submit">Применить</button>
+
+    <input type="text" name="q" placeholder="Поиск...">
+</form>
+
+<div>
+    {% if books.has_previous %}
+        <a href="?page={{ books.previous_page_number }}">Назад</a>
+    {% endif %}
+
+    Страница {{ books.number }} из {{ books.paginator.num_pages }}
+
+    {% if books.has_next %}
+        <a href="?page={{ books.next_page_number }}">Вперед</a>
+    {% endif %}
+</div>

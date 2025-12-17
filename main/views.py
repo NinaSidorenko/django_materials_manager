@@ -1,71 +1,104 @@
 from django.shortcuts import render, redirect, get_object_or_404 
-from .models import Task, Category
-from .forms import TaskForm
+from .models import Book, Article, Subject, Genre
+from .forms import BookForm, ArticleForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 
-def index(request): 
-    return HttpResponse("Привет, это мой первый Django-проект!")
+from .models import Book, Article
+def books_articles_list(request):
+    books = Book.objects.all()
+    articles = Article.objects.all()
 
-from .models import Task 
-def tasks_list(request):
-    tasks = Task.objects.all()
+    genre = request.GET.get('genre')
+    status_b = request.GET.get('status')
+    query_b = request.GET.get('q_b')
 
-    category = request.GET.get('category')
-    status = request.GET.get('status')
-    query = request.GET.get('q')
+    if genre:
+        books = books.filter(genre__id=genre)
+    if status_b == 'Прочитана':
+        books = books.filter(is_done=True)
+    if query_b:
+        books = books.filter(title__icontains=query_b)
+    elif status_b == 'В процессе':
+        books = books.filter(is_done=False)
 
-    if category:
-        tasks = tasks.filter(category__id=category)
-    if status == 'done':
-        tasks = tasks.filter(is_done=True)
-    if query:
-        tasks = tasks.filter(title__icontains=query)
-    elif status == 'not_done':
-        tasks = tasks.filter(is_done=False)
-
-    paginator = Paginator(tasks, 5) # 5 задач на страницу
+    paginator = Paginator(books, 5) # 5 задач на страницу
     page = request.GET.get('page')
-    tasks = paginator.get_page(page)
+    books = paginator.get_page(page)
 
-    return render(request, "tasks_list.html", {
-        "tasks": tasks,
-        "categories": Category.objects.all()
+    return render(request, "books_articles_list.html", {
+        "books": books,
+        "articles": articles,
+        "genres": Genre.objects.all(),
+        "subjects": Subject.objects.all(),
     })
 
+
+
 @login_required
-def task_create(request): 
+def book_create(request): 
         if request.method == "POST": 
-            form = TaskForm(request.POST) 
+            form = BookForm(request.POST) 
             if form.is_valid(): 
                 task = form.save(commit=False)
-                task.executor = request.user
                 task.save() 
-                return redirect('tasks_list') 
+                return redirect('books_articles_list') 
         else: 
-            form = TaskForm() 
-        return render(request, "task_form.html", {"form": form}) 
+            form = BookForm() 
+        return render(request, "book_form.html", {"form": form}) 
 
 @login_required
-def task_update(request, pk): 
-    task = get_object_or_404(Task, pk=pk) 
+def article_create(request): 
+        if request.method == "POST": 
+            form = ArticleForm(request.POST) 
+            if form.is_valid(): 
+                task = form.save(commit=False)
+                task.save() 
+                return redirect('books_articles_list') 
+        else: 
+            form = BookForm() 
+        return render(request, "article_form.html", {"form": form}) 
+
+@login_required
+def book_update(request, pk): 
+    task = get_object_or_404(Book, pk=pk) 
     if request.method == "POST": 
-        form = TaskForm(request.POST, instance=task) 
+        form = BookForm(request.POST, instance=task) 
         if form.is_valid(): 
-            task = form.save(commit=False) # проверить, нужно ли это и следующая строка, если получится странно - убрать
-            task.executor = request.user   # читать комм к предыдушей
+            book = form.save(commit=False) # проверить, нужно ли это и следующая строка, если получится странно - убрать
             form.save() 
-            return redirect('tasks_list') 
+            return redirect('books_articles_list') 
     else: 
 
-        form = TaskForm(instance=task) 
-    return render(request, "task_form.html", {"form": form})
+        form = BookForm(instance=task) 
+    return render(request, "book_form.html", {"form": form})
 
 @login_required
-def task_delete(request, pk): 
-    task = get_object_or_404(Task, pk=pk) 
+def article_update(request, pk): 
+    task = get_object_or_404(Book, pk=pk) 
     if request.method == "POST": 
-        task.delete() 
-        return redirect('tasks_list') 
-    return render(request, "task_confirm_delete.html", {"task": task}) 
+        form = ArticleForm(request.POST, instance=task) 
+        if form.is_valid(): 
+            article = form.save(commit=False) # проверить, нужно ли это и следующая строка, если получится странно - убрать
+            form.save() 
+            return redirect('books_articles_list') 
+    else: 
 
+        form = ArticleForm(instance=task) 
+    return render(request, "article_form.html", {"form": form})
+
+@login_required
+def book_delete(request, pk): 
+    book = get_object_or_404(Book, pk=pk) 
+    if request.method == "POST": 
+        book.delete() 
+        return redirect('books_articles_list') 
+    return render(request, "book_confirm_delete.html", {"book": book}) 
+
+@login_required
+def article_delete(request, pk): 
+    article = get_object_or_404(Book, pk=pk) 
+    if request.method == "POST": 
+        article.delete() 
+        return redirect('books_articles_list') 
+    return render(request, "article_confirm_delete.html", {"article": article}) 

@@ -1,0 +1,6 @@
+<h1>Удалить статью?</h1> 
+<p>{{ article.title }}</p> 
+<form method="POST"> 
+{% csrf_token %} 
+<button type="submit">Удалить</button> 
+</form> 
