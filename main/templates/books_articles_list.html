@@ -16,6 +16,29 @@
 </nav>
 <body>
     <h1>Мои книги и статьи</h1>
+
+    <h2>Избранное</h2>
+
+    {% for book in books %}
+        {% if book.like %}
+        <li> ❤️ Книга
+            {% if book.status %}✔ Прочитана {%else%}⏳В процессе
+            {%endif %}
+            <strong>{{ book.title }}</strong>         
+        </li>
+        {%endif%}
+    {% endfor %}
+
+    {% for article in articles %}
+        {% if article.like %}
+        <li> ❤️ Статья
+            {% if article.status %}✔ Прочитана {%else%}⏳В процессе
+            {%endif%}
+            <strong>{{ article.title }}</strong> 
+        </li>
+        {%endif%}
+        {% endfor %}
+
     <div class="column">
     <ul>
         <h2>Книги</h2>
@@ -29,8 +52,8 @@
 
     <select name="status_b">
         <option value="">Любой статус</option>
-        <option value="done">Прочитана</option>
-        <option value="not_done">В процессе</option>
+        <option value="Прочитана">Прочитана</option>
+        <option value="В процессе">В процессе</option>
     </select>
 
     <button type="submit">Применить</button>
@@ -40,7 +63,7 @@
     <br></br>
         {% for book in books %}
         <li>   
-            {% if book.is_done %}✔ Прочитана {%else%}⏳В процессе
+            {% if book.status %}✔ Прочитана {%else%}⏳В процессе
             {%endif %}
             <strong>{{ book.title }}</strong> 
              — <a href="{% url 'book_update' book.pk %}">Редактировать</a> 
@@ -80,8 +103,8 @@
 
         <select name="status_a">
         <option value="">Любой статус</option>
-        <option value="done">Прочитана</option>
-        <option value="not_done">В процессе</option>
+        <option value="Прочитана">Прочитана</option>
+        <option value="В процессе">В процессе</option>
     </select>
 
     <button type="submit">Применить</button>
@@ -91,7 +114,7 @@
 <br></br>
         {% for article in articles %}
         <li>
-            {% if article.is_done %}✔ Прочитана {%else%}⏳В процессе
+            {% if article.status %}✔ Прочитана {%else%}⏳В процессе
             {%endif%}
             <strong>{{ article.title }}</strong> 
             — <a href="{% url 'article_update' article.pk %}">Редактировать</a> 

@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Book, Article
 def books_articles_list(request):
-    books = Book.objects.all().order_by('is_done')
-    articles = Article.objects.all().order_by('is_done')
+    books = Book.objects.all().order_by('status')
+    articles = Article.objects.all().order_by('status')
 
     genre = request.GET.get('genre')
     status_b = request.GET.get('status_b')
@@ -15,11 +15,11 @@ def books_articles_list(request):
 
     if genre:
         books = books.filter(genre__id=genre)
-    if status_b == 'done':
+    if status_b == 'Прочитана':
         books = books.filter(is_done=True)
     if query_b:
         books = books.filter(title__icontains=query_b)
-    elif status_b == 'not_done':
+    elif status_b == 'В процессе':
         books = books.filter(is_done=False)
 
     subject = request.GET.get('subject')
@@ -28,11 +28,11 @@ def books_articles_list(request):
 
     if subject:
         articles = articles.filter(subject__id=subject)
-    if status_a == 'done':
+    if status_a == 'Прочитана':
         articles = articles.filter(is_done=True)
     if query_a:
         articles = articles.filter(title__icontains=query_a)
-    elif status_a == 'not_done':
+    elif status_a == 'В процессе':
         articles = articles.filter(is_done=False)
 
     paginator_b = Paginator(books, 5)
@@ -73,14 +73,14 @@ def article_create(request):
                 article.save() 
                 return redirect('books_articles_list') 
         else: 
-            form = BookForm() 
+            form = ArticleForm() 
         return render(request, "article_form.html", {"form": form}) 
 
 @login_required
 def book_update(request, pk): 
     book = get_object_or_404(Book, pk=pk) 
     if request.method == "POST": 
-        form = BookForm(request.POST, instance=task) 
+        form = BookForm(request.POST, instance=book) 
         if form.is_valid(): 
             book = form.save(commit=False) # проверить, нужно ли это и следующая строка, если получится странно - убрать
             form.save() 
