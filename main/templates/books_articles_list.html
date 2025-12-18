@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Менеджер книг и статей</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+
+<nav>
+    <a href="{% url 'books_articles_list' %}">Книги и статьи</a>
+    {% if user.is_authenticated %}
+        <span>{{ user.username }}</span>
+        <a href="/accounts/logout/">Выход</a>
+    {% else %}
+        <a href="/accounts/login/">Вход</a>
+    {% endif %}
+</nav>
+<body>
+    <h1>Мои книги и статьи</h1>
+
+    <h2>Избранное</h2>
+
+    <table>
+    <thead>
+    <tr>
+      <th></th>
+      <th>Тип</th>
+      <th>Название</th>
+      <th>Жанр/Тема</th>
+      <th>Страница</th>
+      <th>Статус</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in books %}
+    {%if book.like%}
+      <tr>
+        <td>❤️</td>
+        <td>Книга</td>
+        <td><strong>{{book.title}}</strong></td>
+        <td>{{book.genre}}</td>
+        <td>{{book.page}}</td>
+        <td>{%if book.status%}✔ Прочитана {%else%}⏳В процессе{%endif%}</td>
+      </tr>
+      {%endif%}
+    {% endfor %}
+    {% for article in articles %}
+        {%if article.like%}
+      <tr>
+        <td>❤️</td>
+        <td>Статья</td>
+        <td><strong>{{article.title}}</strong></td>
+        <td>{{article.subject}}</td>
+        <td>{{article.page}}</td>
+        <td>{% if article.status %}✔ Прочитана {%else%}⏳В процессе{%endif%}</td>
+      </tr>
+      {%endif%}
+    {% endfor %}
+  </tbody>
+</table>
+
+    <div class="column">
+    <ul>
+        <h2>Книги</h2>
+    <form method="GET">
+    <select name="genre">
+        <option value="">Все жанры</option>
+        {% for g in genres %}
+        <option value="{{ g.id }}">{{ g.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="status_b">
+        <option value="">Любой статус</option>
+        <option value="Прочитана">Прочитана</option>
+        <option value="В процессе">В процессе</option>
+    </select>
+
+    <button type="submit">Применить</button>
+
+    <input type="text" name="q_b" placeholder="Поиск...">
+    </form>
+    <br></br>
+
+        <table>
+    <thead>
+    <tr>
+      <th>Статус</th>
+      <th>Название</th>
+      <th>Жанр</th>
+      <th>Страница</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for book in books %}
+      <tr>
+        <td>{%if book.status%}✔ Прочитана {%else%}⏳В процессе{%endif%}</td>
+        <td><strong>{{book.title}}</strong></td>
+        <td>{{book.genre}}</td>
+        <td>{{book.page}}</td>
+         <td><a href="{% url 'book_update' book.pk %}">Редактировать</a> </td>
+         <td><a href="{% url 'book_delete' book.pk %}">Удалить</a>  </td>
+      </tr>
+    {%empty%}
+        Пока нет книг
+    {% endfor %}
+  </tbody>
+</table>
+
+        <a href="{% url 'book_create' %}">Добавить книгу</a> 
+
+<div>
+    {% if books.has_previous %}
+        <a href="?page_b={{ books.previous_page_number }}">Назад</a>
+    {% endif %}
+
+    Страница {{ books.number }} из {{ books.paginator.num_pages }}
+
+    {% if books.has_next %}
+        <a href="?page_b={{ books.next_page_number }}">Вперед</a>
+    {% endif %}
+</div>
+    </ul>
+    </div>
+
+
+    <div class ="column">
+    <ul>
+        <h2>Статьи</h2>
+            <form method="GET">
+    <select name="subject">
+        <option value="">Все темы</option>
+        {% for s in subjects %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+    </select>
+
+        <select name="status_a">
+        <option value="">Любой статус</option>
+        <option value="Прочитана">Прочитана</option>
+        <option value="В процессе">В процессе</option>
+    </select>
+
+    <button type="submit">Применить</button>
+
+    <input type="text" name="q_a" placeholder="Поиск...">
+</form>
+<br></br>
+        <table>
+    <thead>
+    <tr>
+      <th>Статус</th>
+      <th>Название</th>
+      <th>Тема</th>
+      <th>Страница</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for article in articles %}
+      <tr>
+        <td>{%if article.status%}✔ Прочитана {%else%}⏳В процессе{%endif%}</td>
+        <td><strong>{{article.title}}</strong></td>
+        <td>{{article.subject}}</td>
+        <td>{{article.page}}</td>
+         <td><a href="{% url 'article_update' article.pk %}">Редактировать</a> </td>
+         <td><a href="{% url 'article_delete' article.pk %}">Удалить</a>  </td>
+      </tr>
+    {%empty%}
+        Пока нет статей
+    {% endfor %}
+  </tbody>
+</table>
+
+        <a href="{% url 'article_create' %}">Добавить статью</a> 
+
+<div>
+    {% if articles.has_previous %}
+        <a href="?page_a={{articles.previous_page_number }}">Назад</a>
+    {% endif %}
+
+    Страница {{articles.number }} из {{articles.paginator.num_pages }}
+
+    {% if articles.has_next %}
+        <a href="?page_a={{ articles.next_page_number }}">Вперед</a>
+    {% endif %}
+</div>
+
+    </ul>
+    </div>
+</body>
+</html>
+
+
+
+
