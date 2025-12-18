@@ -1,23 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Список книг</title>
+    <title>Менеджер книг и статей</title>
+    <link rel="stylesheet" href="static/styles.css">
 </head>
-<body>
-    <h1>Мои задачи</h1>
-    <ul>
-        {% for book in books %}
-        <li>
-            {% if book.is_done %}✔ Прочитано{% else %}⏳ В процессе
-            {%endif %}
-            <strong>{{ book.title }}</strong> 
-        </li>
-        {% empty %}
-        <li>Пока нет книг</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
 
 <nav>
     <a href="{% url 'books_articles_list' %}">Книги и статьи</a>
@@ -28,21 +14,12 @@
         <a href="/accounts/login/">Вход</a>
     {% endif %}
 </nav>
-
-
-<a href="{% url 'book_create' %}">Добавить книгу</a> 
-<ul> 
-    {% for book in books_articles_list %} 
-    <li> 
-        {{ book.title }} 
-        — <a href="{% url 'bool_update' book.pk %}">Редактировать</a> 
-        — <a href="{% url 'book_delete' book.pk %}">Удалить</a> 
-    </li> 
-    {% endfor %} 
-</ul> 
-
-
-<form method="GET">
+<body>
+    <h1>Мои книги и статьи</h1>
+    <div class="column">
+    <ul>
+        <h2>Книги</h2>
+    <form method="GET">
     <select name="genre">
         <option value="">Все жанры</option>
         {% for g in genres %}
@@ -50,7 +27,7 @@
         {% endfor %}
     </select>
 
-    <select name="status">
+    <select name="status_b">
         <option value="">Любой статус</option>
         <option value="done">Прочитана</option>
         <option value="not_done">В процессе</option>
@@ -58,17 +35,91 @@
 
     <button type="submit">Применить</button>
 
-    <input type="text" name="q" placeholder="Поиск...">
-</form>
+    <input type="text" name="q_b" placeholder="Поиск...">
+    </form>
+    <br></br>
+        {% for book in books %}
+        <li>   
+            {% if book.is_done %}✔ Прочитана {%else%}⏳В процессе
+            {%endif %}
+            <strong>{{ book.title }}</strong> 
+             — <a href="{% url 'book_update' book.pk %}">Редактировать</a> 
+            — <a href="{% url 'book_delete' book.pk %}">Удалить</a>         
+        </li>
+        {%empty%}
+        Пока нет книг
+        {% endfor %}
+
+        <a href="{% url 'book_create' %}">Добавить книгу</a> 
 
 <div>
     {% if books.has_previous %}
-        <a href="?page={{ books.previous_page_number }}">Назад</a>
+        <a href="?page_b={{ books.previous_page_number }}">Назад</a>
     {% endif %}
 
     Страница {{ books.number }} из {{ books.paginator.num_pages }}
 
     {% if books.has_next %}
-        <a href="?page={{ books.next_page_number }}">Вперед</a>
+        <a href="?page_b={{ books.next_page_number }}">Вперед</a>
     {% endif %}
 </div>
+    </ul>
+    </div>
+
+
+    <div class ="column">
+    <ul>
+        <h2>Статьи</h2>
+            <form method="GET">
+    <select name="subject">
+        <option value="">Все темы</option>
+        {% for s in subjects %}
+        <option value="{{ s.id }}">{{ s.name }}</option>
+        {% endfor %}
+    </select>
+
+        <select name="status_a">
+        <option value="">Любой статус</option>
+        <option value="done">Прочитана</option>
+        <option value="not_done">В процессе</option>
+    </select>
+
+    <button type="submit">Применить</button>
+
+    <input type="text" name="q_a" placeholder="Поиск...">
+</form>
+<br></br>
+        {% for article in articles %}
+        <li>
+            {% if article.is_done %}✔ Прочитана {%else%}⏳В процессе
+            {%endif%}
+            <strong>{{ article.title }}</strong> 
+            — <a href="{% url 'article_update' article.pk %}">Редактировать</a> 
+            — <a href="{% url 'article_delete' article.pk %}">Удалить</a> 
+        </li>
+        {%empty%}
+        Пока нет статей
+        {% endfor %}
+
+        <a href="{% url 'article_create' %}">Добавить статью</a> 
+
+<div>
+    {% if articles.has_previous %}
+        <a href="?page_a={{articles.previous_page_number }}">Назад</a>
+    {% endif %}
+
+    Страница {{articles.number }} из {{articles.paginator.num_pages }}
+
+    {% if articles.has_next %}
+        <a href="?page_a={{ articles.next_page_number }}">Вперед</a>
+    {% endif %}
+</div>
+
+    </ul>
+    </div>
+</body>
+</html>
+
+
+
+

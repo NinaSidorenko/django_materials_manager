@@ -6,25 +6,42 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Book, Article
 def books_articles_list(request):
-    books = Book.objects.all()
-    articles = Article.objects.all()
+    books = Book.objects.all().order_by('is_done')
+    articles = Article.objects.all().order_by('is_done')
 
     genre = request.GET.get('genre')
-    status_b = request.GET.get('status')
+    status_b = request.GET.get('status_b')
     query_b = request.GET.get('q_b')
 
     if genre:
         books = books.filter(genre__id=genre)
-    if status_b == 'Прочитана':
+    if status_b == 'done':
         books = books.filter(is_done=True)
     if query_b:
         books = books.filter(title__icontains=query_b)
-    elif status_b == 'В процессе':
+    elif status_b == 'not_done':
         books = books.filter(is_done=False)
 
-    paginator = Paginator(books, 5) # 5 задач на страницу
-    page = request.GET.get('page')
-    books = paginator.get_page(page)
+    subject = request.GET.get('subject')
+    status_a = request.GET.get('status_a')
+    query_a = request.GET.get('q_a')
+
+    if subject:
+        articles = articles.filter(subject__id=subject)
+    if status_a == 'done':
+        articles = articles.filter(is_done=True)
+    if query_a:
+        articles = articles.filter(title__icontains=query_a)
+    elif status_a == 'not_done':
+        articles = articles.filter(is_done=False)
+
+    paginator_b = Paginator(books, 5)
+    page_b = request.GET.get('page_b')
+    books = paginator_b.get_page(page_b)
+
+    paginator_a = Paginator(articles, 5)
+    page_a = request.GET.get('page_a')
+    articles = paginator_a.get_page(page_a)
 
     return render(request, "books_articles_list.html", {
         "books": books,
@@ -40,8 +57,8 @@ def book_create(request):
         if request.method == "POST": 
             form = BookForm(request.POST) 
             if form.is_valid(): 
-                task = form.save(commit=False)
-                task.save() 
+                book = form.save(commit=False)
+                book.save() 
                 return redirect('books_articles_list') 
         else: 
             form = BookForm() 
@@ -52,8 +69,8 @@ def article_create(request):
         if request.method == "POST": 
             form = ArticleForm(request.POST) 
             if form.is_valid(): 
-                task = form.save(commit=False)
-                task.save() 
+                article = form.save(commit=False)
+                article.save() 
                 return redirect('books_articles_list') 
         else: 
             form = BookForm() 
@@ -61,7 +78,7 @@ def article_create(request):
 
 @login_required
 def book_update(request, pk): 
-    task = get_object_or_404(Book, pk=pk) 
+    book = get_object_or_404(Book, pk=pk) 
     if request.method == "POST": 
         form = BookForm(request.POST, instance=task) 
         if form.is_valid(): 
@@ -70,21 +87,21 @@ def book_update(request, pk):
             return redirect('books_articles_list') 
     else: 
 
-        form = BookForm(instance=task) 
+        form = BookForm(instance=book) 
     return render(request, "book_form.html", {"form": form})
 
 @login_required
 def article_update(request, pk): 
-    task = get_object_or_404(Book, pk=pk) 
+    article = get_object_or_404(Article, pk=pk) 
     if request.method == "POST": 
-        form = ArticleForm(request.POST, instance=task) 
+        form = ArticleForm(request.POST, instance=article) 
         if form.is_valid(): 
             article = form.save(commit=False) # проверить, нужно ли это и следующая строка, если получится странно - убрать
             form.save() 
             return redirect('books_articles_list') 
     else: 
 
-        form = ArticleForm(instance=task) 
+        form = ArticleForm(instance=article) 
     return render(request, "article_form.html", {"form": form})
 
 @login_required
@@ -97,7 +114,7 @@ def book_delete(request, pk):
 
 @login_required
 def article_delete(request, pk): 
-    article = get_object_or_404(Book, pk=pk) 
+    article = get_object_or_404(Article, pk=pk) 
     if request.method == "POST": 
         article.delete() 
         return redirect('books_articles_list') 
