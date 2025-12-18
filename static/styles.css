@@ -1,0 +1,17 @@
+.column {
+  float: left;
+  width: 50%;
+}
+
+table {
+  width: auto;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  table-layout: fixed;
+  overflow:auto;
+}
+
+th, td {
+  padding: 0.5rem;
+  text-align: left;
+}
