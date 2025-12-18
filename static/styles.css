@@ -3,6 +3,13 @@
   width: 50%;
 }
 
-.status{
-  width: 10 px;
+table {
+  width: auto;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th, td {
+  padding: 0.5rem;
+  text-align: left;
 }
